@@ -1,4 +1,14 @@
-import { pgTable, text, timestamp, boolean, index, uniqueIndex } from 'drizzle-orm/pg-core';
+import { createId } from '@paralleldrive/cuid2';
+import {
+	pgTable,
+	text,
+	timestamp,
+	boolean,
+	index,
+	uniqueIndex,
+	numeric,
+	decimal
+} from 'drizzle-orm/pg-core';
 
 export const user = pgTable('user', {
 	id: text('id').primaryKey(),
@@ -75,3 +85,71 @@ export const verification = pgTable(
 	},
 	(table) => [index('verification_identifier_idx').on(table.identifier)]
 );
+
+export const meter = pgTable('meter', {
+	id: text('id')
+		.primaryKey()
+		.$defaultFn(() => createId()),
+	name: text('name').notNull(),
+	rrNo: text('rr_number').notNull().unique(),
+	startReading: numeric('start_reading', {
+		mode: 'number',
+		precision: 10,
+		scale: 2
+	})
+		.default(0)
+		.notNull(),
+	createdAt: timestamp('created_at').defaultNow().notNull(),
+	updatedAt: timestamp('updated_at')
+		.defaultNow()
+		.$onUpdate(() => new Date())
+		.notNull()
+});
+
+export const userMeter = pgTable('user_meter', {
+	userId: text('user_id')
+		.notNull()
+		.references(() => user.id, { onDelete: 'cascade' }),
+	meterId: text('meter_id')
+		.notNull()
+		.references(() => meter.id, { onDelete: 'cascade' }),
+	creator: boolean('creator').notNull().default(false),
+	createdAt: timestamp('created_at').defaultNow().notNull()
+});
+
+export const bill = pgTable('bill', {
+	id: text('id')
+		.primaryKey()
+		.$defaultFn(() => createId()),
+	previousReading: numeric('previous_reading', {
+		mode: 'number',
+		precision: 10,
+		scale: 2
+	}).notNull(),
+	currentReading: numeric('current_reading', {
+		mode: 'number',
+		precision: 10,
+		scale: 2
+	}).notNull(),
+	total: decimal('total', { mode: 'number', precision: 8, scale: 2 }).notNull(),
+	payable: decimal('payable', { mode: 'number', precision: 8, scale: 2 }).notNull(),
+	meterId: text('meter_id')
+		.notNull()
+		.references(() => meter.id, { onDelete: 'cascade' }),
+	createdAt: timestamp('created_at').defaultNow().notNull(),
+	updatedAt: timestamp('updated_at')
+		.defaultNow()
+		.$onUpdate(() => new Date())
+		.notNull()
+});
+
+export const reading = pgTable('reading', {
+	id: text('id')
+		.primaryKey()
+		.$defaultFn(() => createId()),
+	value: numeric('value', { mode: 'number', precision: 10, scale: 2 }).notNull(),
+	meterId: text('meter_id')
+		.notNull()
+		.references(() => meter.id, { onDelete: 'cascade' }),
+	createAt: timestamp('created_at').defaultNow().notNull()
+});

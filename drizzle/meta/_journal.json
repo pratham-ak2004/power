@@ -8,6 +8,20 @@
       "when": 1787922521029,
       "tag": "0000_auth-init",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1789364935220,
+      "tag": "0001_lethal_tempest",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789800421072,
+      "tag": "0002_hard_tyrannus",
+      "breakpoints": true
     }
   ]
 }
