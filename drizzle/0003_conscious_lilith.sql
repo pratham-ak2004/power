@@ -1,0 +1,1 @@
+ALTER TABLE "reading" ADD COLUMN "read_at" timestamp DEFAULT now() NOT NULL;

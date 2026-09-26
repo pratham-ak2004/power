@@ -151,5 +151,6 @@ export const reading = pgTable('reading', {
 	meterId: text('meter_id')
 		.notNull()
 		.references(() => meter.id, { onDelete: 'cascade' }),
-	createAt: timestamp('created_at').defaultNow().notNull()
+	readAt: timestamp('read_at').defaultNow().notNull(),
+	createdAt: timestamp('created_at').defaultNow().notNull()
 });

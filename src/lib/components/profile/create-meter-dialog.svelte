@@ -16,7 +16,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { toast } from 'svelte-sonner';
 
-	let { form: initialForm }: Props = $props();
+	const { form: initialForm }: Props = $props();
 
 	const form = superForm(initialForm, {
 		validators: zod4Client(createMeterSchema),

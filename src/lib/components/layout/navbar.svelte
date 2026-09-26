@@ -47,6 +47,10 @@
 	const { user, class: className }: Props = $props();
 
 	let activeIndex = $derived(ROUTES.findIndex((route) => route.href === page.url.pathname));
+	let imageLoadFailed = $state(false);
+	let imageSrc = $derived(
+		imageLoadFailed ? '/default-profile.png' : (user?.image ?? '/default-profile.png')
+	);
 </script>
 
 <nav
@@ -72,9 +76,14 @@
 			>
 				{#if route.href === '/profile' && user}
 					<img
-						src={user.image ?? '/default-profile.png'}
+						src={imageSrc}
 						alt="profile"
 						class="size-7 rounded-full"
+						loading="lazy"
+						decoding="async"
+						onerror={() => {
+							imageLoadFailed = true;
+						}}
 					/>
 					<span>{route.name}</span>
 				{:else}

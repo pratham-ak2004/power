@@ -4,14 +4,12 @@ import { meter, userMeter } from '../db/schema';
 import { fail } from '@sveltejs/kit';
 import { message, type SuperValidated } from 'sveltekit-superforms';
 import { capitalize } from '$lib/utils';
+import type z from 'zod';
+import type { CreateMeterSchema } from '$lib/zod';
 
 export async function createMeterAction(
 	userId: string,
-	form: SuperValidated<{
-		name: string;
-		rrNo: string;
-		startReading?: number | undefined;
-	}>
+	form: SuperValidated<z.infer<CreateMeterSchema>>
 ) {
 	const data = form.data;
 	const rrNo = data.rrNo.toUpperCase();

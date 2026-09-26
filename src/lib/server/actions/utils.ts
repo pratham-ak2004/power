@@ -2,9 +2,10 @@ import { dev } from '$app/env';
 import { authClient } from '$lib/client';
 import type { RequestEvent, ActionFailure } from '@sveltejs/kit';
 import { fail } from '@sveltejs/kit';
+import { auth } from '$lib/server/auth';
 
 type ProtectedContext = {
-	session: NonNullable<Awaited<ReturnType<typeof authClient.getSession>>['data']>;
+	session: typeof auth.$Infer.Session;
 };
 
 export function protectedAction<R>(

@@ -39,6 +39,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 					...meter,
 					meter: {
 						...meter.meter,
+						// TODO: uncomment this value
 						// users: meter.meter.users.filter((m) => m.userId !== session.user.id)
 						users: meter.meter.users
 					}
