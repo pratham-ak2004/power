@@ -48,7 +48,8 @@
 			<MeterInfo
 				meter={data.meter}
 				latestReading={latestReading?.value.toFixed(2) ?? null}
-				form={data.forms.createReadingForm}
+				form={data.forms}
+				{route}
 			/>
 			{@render children()}
 		{:else}

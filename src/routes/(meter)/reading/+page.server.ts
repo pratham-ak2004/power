@@ -20,6 +20,6 @@ export const actions = {
 			return fail(400, { form });
 		}
 
-		return deleteReadings(session.user.id, form);
+		return await deleteReadings(session.user.id, form);
 	})
 };

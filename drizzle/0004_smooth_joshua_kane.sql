@@ -1,0 +1,1 @@
+ALTER TABLE "bill" ADD COLUMN "billed_on" timestamp DEFAULT now() NOT NULL;

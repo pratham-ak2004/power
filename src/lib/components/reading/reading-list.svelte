@@ -23,7 +23,15 @@
 	import * as Table from '$lib/components/ui/table';
 	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
-	import { ChevronLeft, ChevronRight, Search, Trash } from '@lucide/svelte';
+	import {
+		ArrowDown,
+		ArrowUp,
+		ArrowUpDown,
+		ChevronLeft,
+		ChevronRight,
+		Search,
+		Trash
+	} from '@lucide/svelte';
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import { toast } from 'svelte-sonner';
@@ -236,7 +244,19 @@
 													}}
 												/>
 											{:else}
-												<FlexRender {header} />
+												<div class="flex items-center gap-2">
+													<FlexRender {header} />
+													{#if header.column.getIsSorted() === 'asc'}
+														<ArrowUp class="size-3.5" aria-hidden="true" />
+													{:else if header.column.getIsSorted() === 'desc'}
+														<ArrowDown class="size-3.5" aria-hidden="true" />
+													{:else if header.column.getCanSort()}
+														<ArrowUpDown
+															class="size-3.5 text-muted-foreground"
+															aria-hidden="true"
+														/>
+													{/if}
+												</div>
 											{/if}
 										{/if}
 									</Table.Head>

@@ -18,6 +18,10 @@
 	let user = $derived(data.user);
 </script>
 
+<svelte:head>
+	<title>{user?.name ?? 'Profile'} | Power</title>
+</svelte:head>
+
 {#if user}
 	<div class="space-y-4 py-8">
 		<div class="space-y-2">

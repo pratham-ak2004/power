@@ -53,10 +53,10 @@
 	);
 </script>
 
-<nav
-	class={cn('bg-whitef fixed bottom-5 left-1/2 w-full max-w-xl -translate-x-1/2 px-2', className)}
->
-	<div class="relative grid grid-cols-4 rounded-full border p-1">
+<!-- Bottom paddding -->
+<div class="h-24"></div>
+<nav class={cn('fixed bottom-5 left-1/2 w-full max-w-xl -translate-x-1/2 px-2', className)}>
+	<div class="relative grid grid-cols-4 rounded-full border p-1 backdrop-blur-md">
 		<div
 			class="absolute inset-y-2 left-2 w-[calc((100%-1rem)/4)] overflow-hidden rounded-full
 		border-2 border-primary bg-primary bg-linear-to-b from-white/20 via-transparent to-white/40 shadow-md

@@ -131,8 +131,9 @@ export const bill = pgTable('bill', {
 		precision: 10,
 		scale: 2
 	}).notNull(),
-	total: decimal('total', { mode: 'number', precision: 8, scale: 2 }).notNull(),
-	payable: decimal('payable', { mode: 'number', precision: 8, scale: 2 }).notNull(),
+	payable: decimal('payable', { mode: 'number', precision: 8, scale: 2 }).notNull(), // total payable amount
+	total: decimal('total', { mode: 'number', precision: 8, scale: 2 }).notNull(), // total amount paid
+	billedOn: timestamp('billed_on').defaultNow().notNull(),
 	meterId: text('meter_id')
 		.notNull()
 		.references(() => meter.id, { onDelete: 'cascade' }),

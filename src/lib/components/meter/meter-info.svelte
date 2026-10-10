@@ -4,18 +4,23 @@
 	import type { LayoutServerData } from '../../../routes/(meter)/$types';
 
 	import { CreateReadingDialog } from '../reading';
+	import { CreateBillDialog } from '../bills';
 	import type { Infer, SuperValidated } from 'sveltekit-superforms';
-	import type { CreateReadingSchema } from '$lib/zod';
+	import type { CreateBillSchema, CreateReadingSchema } from '$lib/zod';
 
 	type Props = {
 		meter: LayoutServerData['meter'];
 		latestReading: string | null;
-		form: SuperValidated<Infer<CreateReadingSchema>>;
+		route: string;
+		form: {
+			createReadingForm: SuperValidated<Infer<CreateReadingSchema>>;
+			createBillForm: SuperValidated<Infer<CreateBillSchema>>;
+		};
 	};
 </script>
 
 <script lang="ts">
-	const { meter, latestReading, form }: Props = $props();
+	const { meter, latestReading, form, route }: Props = $props();
 </script>
 
 {#if meter}
@@ -27,7 +32,11 @@
 			</Card.Title>
 			<Card.Description>Selected meter details</Card.Description>
 			<Card.Action>
-				<CreateReadingDialog {meter} {form} formId="create-reading-form" />
+				{#if route == 'reading'}
+					<CreateReadingDialog {meter} form={form.createReadingForm} formId="create-reading-form" />
+				{:else if route == 'bills'}
+					<CreateBillDialog {meter} form={form.createBillForm} formId="create-bill-form" />
+				{/if}
 			</Card.Action>
 		</Card.Header>
 		<Card.Content>
