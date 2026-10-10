@@ -15,6 +15,7 @@
 	import { cn } from '$lib/utils';
 	import { toast } from 'svelte-sonner';
 	import { CalendarDate, type DateValue } from '@internationalized/date';
+	import { untrack } from 'svelte';
 
 	type Props = {
 		meter: NonNullable<LayoutServerData['meter']>;
@@ -46,48 +47,50 @@
 			: buttonVariants({ variant: variant })
 	);
 
-	const form = superForm(
-		{
-			...initialForm,
-			id: formId
-		},
-		{
-			validators: zod4Client(createBillSchema),
-			multipleSubmits: 'prevent',
-			onSubmit: ({ formData, cancel }) => {
-				const entries = Object.fromEntries(formData.entries());
-				const billedOn = String(entries.billedOn);
-				const result = createBillSchema.safeParse({
-					...entries,
-					previousReading: Number(entries.previousReading),
-					currentReading: Number(entries.currentReading),
-					total: Number(entries.total),
-					payable: Number(entries.payable),
-					billedOn: new Date(billedOn)
-				});
-				if (!result.success) {
-					toast.error(result.error.issues[0].message ?? 'Failed to parse data');
-					submitting = false;
-					cancel();
-				} else {
-					submitting = true;
-				}
+	const form = untrack(() =>
+		superForm(
+			{
+				...initialForm,
+				id: formId
 			},
-			onUpdate: ({ result }) => {
-				submitting = false;
-				if (result.type === 'failure') {
-					toast.error(result.data['message']);
-				} else {
-					open = false;
-					toast.success(result.data['form']['message']);
-					form.reset({
-						newState: {
-							meterId: meter.id
-						}
+			{
+				validators: zod4Client(createBillSchema),
+				multipleSubmits: 'prevent',
+				onSubmit: ({ formData, cancel }) => {
+					const entries = Object.fromEntries(formData.entries());
+					const billedOn = String(entries.billedOn);
+					const result = createBillSchema.safeParse({
+						...entries,
+						previousReading: Number(entries.previousReading),
+						currentReading: Number(entries.currentReading),
+						total: Number(entries.total),
+						payable: Number(entries.payable),
+						billedOn: new Date(billedOn)
 					});
+					if (!result.success) {
+						toast.error(result.error.issues[0].message ?? 'Failed to parse data');
+						submitting = false;
+						cancel();
+					} else {
+						submitting = true;
+					}
+				},
+				onUpdate: ({ result }) => {
+					submitting = false;
+					if (result.type === 'failure') {
+						toast.error(result.data['message']);
+					} else {
+						open = false;
+						toast.success(result.data['form']['message']);
+						form.reset({
+							newState: {
+								meterId: meter.id
+							}
+						});
+					}
 				}
 			}
-		}
+		)
 	);
 	const { form: formData, enhance } = form;
 

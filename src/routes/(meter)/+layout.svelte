@@ -3,8 +3,7 @@
 	import type { Snippet } from 'svelte';
 	import type { LayoutServerData as RootLayoutServerData } from '../$types';
 	import type { LayoutServerData } from './$types';
-	import { MeterSelect, MeterInfo } from '$lib/components/meter';
-	import NoMeterAvailable from '$lib/components/reading/no-meter-available.svelte';
+	import { MeterSelect, MeterInfo, NoMeterAvailable } from '$lib/components/meter';
 	import { page } from '$app/state';
 	import { capitalize } from '$lib/utils';
 

@@ -15,26 +15,29 @@
 	import * as Form from '$lib/components/ui/form';
 	import { Input } from '$lib/components/ui/input';
 	import { toast } from 'svelte-sonner';
+	import { untrack } from 'svelte';
 
 	const { form: initialForm }: Props = $props();
 
-	const form = superForm(initialForm, {
-		validators: zod4Client(createMeterSchema),
-		multipleSubmits: 'prevent',
-		onSubmit: () => {
-			submitting = true;
-		},
-		onUpdate: ({ result }) => {
-			submitting = false;
-			if (result.type === 'failure') {
-				toast.error(result.data['message']);
-			} else {
-				open = false;
-				toast.success(result.data['form']['message']);
-				form.reset();
+	const form = untrack(() =>
+		superForm(initialForm, {
+			validators: zod4Client(createMeterSchema),
+			multipleSubmits: 'prevent',
+			onSubmit: () => {
+				submitting = true;
+			},
+			onUpdate: ({ result }) => {
+				submitting = false;
+				if (result.type === 'failure') {
+					toast.error(result.data['message']);
+				} else {
+					open = false;
+					toast.success(result.data['form']['message']);
+					form.reset();
+				}
 			}
-		}
-	});
+		})
+	);
 	const { form: formData, enhance } = form;
 
 	let open = $state(false);

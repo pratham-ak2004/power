@@ -2,7 +2,7 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { buttonVariants, type ButtonVariant } from '$lib/components/ui/button';
 	import { ChevronDownIcon, Plus } from '@lucide/svelte';
-	import type { Snippet } from 'svelte';
+	import { untrack, type Snippet } from 'svelte';
 	import { cn } from '$lib/utils';
 	import { superForm, type Infer, type SuperValidated } from 'sveltekit-superforms';
 	import { createReadingSchema, type CreateReadingSchema } from '$lib/zod';
@@ -46,35 +46,38 @@
 			: buttonVariants({ variant: variant })
 	);
 
-	const form = superForm(
-		{
-			...initialForm,
-			id: formId
-		},
-		{
-			validators: zod4Client(createReadingSchema),
-			multipleSubmits: 'prevent',
-			onSubmit: () => {
-				console.log('submitting');
-				submitting = true;
+	const form = untrack(() =>
+		superForm(
+			{
+				...initialForm,
+				id: formId
 			},
-			onUpdate: ({ result }) => {
-				submitting = false;
-				if (result.type === 'failure') {
-					toast.error(result.data['message']);
-				} else {
-					open = false;
-					toast.success(result.data['form']['message']);
-					form.reset({
-						newState: {
-							meterId: meter.id,
-							readAt: new Date()
-						}
-					});
+			{
+				validators: zod4Client(createReadingSchema),
+				multipleSubmits: 'prevent',
+				onSubmit: () => {
+					console.log('submitting');
+					submitting = true;
+				},
+				onUpdate: ({ result }) => {
+					submitting = false;
+					if (result.type === 'failure') {
+						toast.error(result.data['message']);
+					} else {
+						open = false;
+						toast.success(result.data['form']['message']);
+						form.reset({
+							newState: {
+								meterId: meter.id,
+								readAt: new Date()
+							}
+						});
+					}
 				}
 			}
-		}
+		)
 	);
+
 	const { form: formData, enhance } = form;
 	$effect(() => {
 		$formData.meterId = meter.id;

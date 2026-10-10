@@ -59,17 +59,17 @@ export async function createBillAction(
 }
 
 export async function deleteBills(userId: string, form: SuperValidated<Infer<DeleteBillsSchema>>) {
-	const meter = await db.query.userMeter.findFirst({
+	const hasUserMeter = await db.query.userMeter.findFirst({
 		where: and(eq(userMeter.userId, userId), eq(userMeter.meterId, form.data.meterId))
 	});
-	if (!meter) {
+	if (!hasUserMeter) {
 		return fail(404, { form, message: 'Meter for user does not exist' });
 	}
 
 	try {
 		const deletedBills = await db
 			.delete(bill)
-			.where(and(eq(bill.meterId, meter.meterId), inArray(bill.id, form.data.ids)))
+			.where(and(eq(bill.meterId, hasUserMeter.meterId), inArray(bill.id, form.data.ids)))
 			.returning();
 
 		if (deletedBills.length === 0) {
