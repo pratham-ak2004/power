@@ -18,7 +18,7 @@
 </svelte:head>
 
 <ModeWatcher defaultMode="dark" />
-<main class="mx-auto max-w-7xl px-2">
+<main class="mx-auto max-w-7xl px-4">
 	{@render children()}
 </main>
 <Navbar user={data.user ?? null} />

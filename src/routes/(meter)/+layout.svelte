@@ -27,7 +27,7 @@
 	const route = $derived(page.url.pathname.substring(1, page.url.pathname.length));
 </script>
 
-<div class="mx-auto w-full max-w-6xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
+<div class="mx-auto w-full space-y-8 py-8">
 	<div class="space-y-2">
 		<div class="flex flex-row items-center gap-2">
 			{#if route === 'reading'}
