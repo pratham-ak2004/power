@@ -4,11 +4,9 @@
 import { getTableName, Table } from 'drizzle-orm';
 import { Cache } from 'drizzle-orm/cache/core';
 import type { CacheConfig } from 'drizzle-orm/cache/core/types';
-import { addCacheKeyToTable, deleteCache, getCache, getCacheKeysForTable, setCache } from './cache';
+import { RedisCache } from './cache';
 
 export interface DrizzleCacheOptions {
-	/** Redis connection URL. Falls back to REDIS_URL env var. */
-	url?: string;
 	/** Default TTL in seconds. Default: 300 (5 minutes). */
 	defaultTtl?: number;
 	/** Key prefix for table tracking Sets. Default: "drizzle:tbl". */
@@ -22,7 +20,10 @@ export class DrizzleCache extends Cache {
 	private readonly prefix: string;
 	private readonly _strategy: 'explicit' | 'all';
 
-	constructor(options: DrizzleCacheOptions = {}) {
+	constructor(
+		private readonly cache: RedisCache,
+		options: DrizzleCacheOptions = {}
+	) {
 		super();
 
 		this.defaultTtl = options.defaultTtl ?? 300;
@@ -41,7 +42,7 @@ export class DrizzleCache extends Cache {
 		_isAutoInvalidate?: boolean
 	): Promise<any[] | undefined> {
 		try {
-			return (await getCache<any[]>(key)) ?? undefined;
+			return (await this.cache.get<any[]>(key)) ?? undefined;
 		} catch (error) {
 			console.error('[drizzle-redis-cache] get failed:', error);
 			return undefined;
@@ -57,10 +58,10 @@ export class DrizzleCache extends Cache {
 	): Promise<void> {
 		try {
 			const ttl = this.calculateTtl(config);
-			await setCache(key, response, ttl);
+			await this.cache.set(key, response, { s: ttl });
 
 			for (const table of tables) {
-				await addCacheKeyToTable(this.tableKey(table), key);
+				await this.cache.addToSet(this.tableKey(table), key);
 			}
 		} catch (error) {
 			console.error('[drizzle-redis-cache] put failed:', error);
@@ -79,7 +80,7 @@ export class DrizzleCache extends Cache {
 
 			for (const table of tables) {
 				const setKey = this.tableKey(table);
-				const keys = await getCacheKeysForTable(setKey);
+				const keys = await this.cache.getSetMembers(setKey);
 
 				for (const key of keys) {
 					keysToDelete.add(key);
@@ -87,7 +88,7 @@ export class DrizzleCache extends Cache {
 				if (keys.length > 0) keysToDelete.add(setKey);
 			}
 
-			await Promise.all([...keysToDelete].map((key) => deleteCache(key)));
+			await Promise.all([...keysToDelete].map((key) => this.cache.delete(key)));
 		} catch (error) {
 			console.error('[drizzle-redis-cache] invalidation failed:', error);
 		}
