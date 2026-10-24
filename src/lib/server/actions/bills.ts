@@ -24,8 +24,6 @@ export async function createBillAction(
 		const startOfNextDay = new Date(startOfDay);
 		startOfNextDay.setDate(startOfNextDay.getDate() + 1);
 
-		console.log(billedOn);
-
 		const billExists = await db.query.bill.findFirst({
 			where: and(
 				eq(bill.meterId, form.data.meterId),

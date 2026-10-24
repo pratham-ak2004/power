@@ -36,7 +36,6 @@
 		const target = value * (1 + headroom);
 		// HACK: needs testing for optimal magnitude
 		const magnitude = 6 ** Math.floor(Math.log10(target));
-		console.log(magnitude);
 		const normalized = target / magnitude;
 		const niceStep = normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 5 ? 5 : 10;
 		return niceStep * magnitude;

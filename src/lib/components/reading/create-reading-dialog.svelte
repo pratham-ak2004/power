@@ -56,7 +56,6 @@
 				validators: zod4Client(createReadingSchema),
 				multipleSubmits: 'prevent',
 				onSubmit: () => {
-					console.log('submitting');
 					submitting = true;
 				},
 				onUpdate: ({ result }) => {
