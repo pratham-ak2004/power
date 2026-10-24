@@ -9,6 +9,7 @@ import { protectedAction } from '$lib/server/actions/utils.js';
 import { db } from '$lib/server/db';
 import { eq } from 'drizzle-orm';
 import { userMeter } from '$lib/server/db/schema';
+import { cache } from '$lib/server/db/cache.js';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const session = locals.session ?? null;
@@ -17,21 +18,29 @@ export const load: PageServerLoad = async ({ locals }) => {
 	};
 
 	if (session) {
-		const meters = await db.query.userMeter.findMany({
-			where: eq(userMeter.userId, session.user.id),
-			with: {
-				meter: {
+		const meters = await cache.fetch(
+			`${session.userId}:profile`,
+			async () => {
+				return await db.query.userMeter.findMany({
+					where: eq(userMeter.userId, session.user.id),
 					with: {
-						users: {
+						meter: {
 							with: {
-								user: true
+								users: {
+									with: {
+										user: true
+									}
+								}
 							}
-						}
+						},
+						user: true
 					}
-				},
-				user: true
+				});
+			},
+			{
+				m: 5
 			}
-		});
+		);
 
 		return {
 			meters: meters.map((meter) => {
@@ -39,9 +48,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 					...meter,
 					meter: {
 						...meter.meter,
-						// TODO: uncomment this value
-						// users: meter.meter.users.filter((m) => m.userId !== session.user.id)
-						users: meter.meter.users
+						users: meter.meter.users.filter((m) => m.userId !== session.user.id)
 					}
 				};
 			}),

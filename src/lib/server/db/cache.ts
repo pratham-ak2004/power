@@ -24,6 +24,7 @@ type RedisBackend = {
 	get(key: string): Promise<string | null>;
 	set(key: string, value: string, ttlMs?: number): Promise<void>;
 	delete(key: string): Promise<number>;
+	deleteByPrefix(prefix: string): Promise<number>;
 	addToSet(key: string, value: string): Promise<void>;
 	getSetMembers(key: string): Promise<string[]>;
 };
@@ -53,6 +54,18 @@ function createUpstashBackend(): RedisBackend {
 		},
 		async delete(key) {
 			return redis.del(key);
+		},
+		async deleteByPrefix(prefix) {
+			let cursor = '0';
+			let deleted = 0;
+
+			do {
+				const [nextCursor, keys] = await redis.scan(cursor, { match: `${prefix}*` });
+				if (keys.length > 0) deleted += await redis.del(...keys);
+				cursor = nextCursor;
+			} while (cursor !== '0');
+
+			return deleted;
 		},
 		async addToSet(key, value) {
 			await redis.sadd(key, value);
@@ -89,6 +102,15 @@ async function createDevelopmentBackend(): Promise<RedisBackend> {
 		async delete(key) {
 			return redis.del(key);
 		},
+		async deleteByPrefix(prefix) {
+			let deleted = 0;
+
+			for await (const keys of redis.scanIterator({ MATCH: `${prefix}*`, COUNT: 100 })) {
+				if (keys.length > 0) deleted += await redis.del(keys);
+			}
+
+			return deleted;
+		},
 		async addToSet(key, value) {
 			await redis.sAdd(key, value);
 		},
@@ -107,6 +129,7 @@ export class RedisCache {
 	private readonly backendPromise: Promise<RedisBackend>;
 
 	constructor() {
+		// HACK: use local redis db for development to reduce cost
 		this.backendPromise =
 			env.NODE_ENV === 'development'
 				? createDevelopmentBackend()
@@ -209,6 +232,14 @@ export class RedisCache {
 
 	async delete(key: string): Promise<number> {
 		return this.deleteInternal(key);
+	}
+
+	async deleteByPrefix(prefix: string): Promise<number> {
+		for (const key of this.localCache.keys()) {
+			if (key.startsWith(prefix)) this.localCache.delete(key);
+		}
+
+		return (await this.backendPromise).deleteByPrefix(prefix);
 	}
 
 	async fetch<V>(key: string, callback: () => Promise<V>, ttl?: TTLTime): Promise<V> {

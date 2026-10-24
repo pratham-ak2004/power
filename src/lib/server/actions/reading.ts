@@ -5,6 +5,7 @@ import type z from 'zod';
 import { db } from '../db';
 import { and, eq, inArray } from 'drizzle-orm';
 import { reading, userMeter } from '../db/schema';
+import { cache } from '../db/cache';
 
 export async function createReadingAction(
 	userId: string,
@@ -30,6 +31,8 @@ export async function createReadingAction(
 		if (newReading.length === 0) {
 			throw new Error('Failed to create reading');
 		}
+
+		await cache.deleteByPrefix(`${userId}:${hasUserMeter.meterId}:`);
 
 		return message(form, 'Successfully created reading');
 	} catch (error) {
@@ -64,6 +67,8 @@ export async function deleteReadings(
 				message: 'No matching readings found'
 			});
 		}
+
+		await cache.deleteByPrefix(`${userId}:${meter.meterId}:`);
 
 		return message(form, 'Success');
 	} catch (error) {

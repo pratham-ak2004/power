@@ -4,6 +4,7 @@ import { db } from '../db';
 import { and, eq, gte, inArray, lt } from 'drizzle-orm';
 import { bill, userMeter } from '../db/schema';
 import { fail } from '@sveltejs/kit';
+import { cache } from '../db/cache';
 
 export async function createBillAction(
 	userId: string,
@@ -51,6 +52,8 @@ export async function createBillAction(
 			throw new Error('Failed to create bill');
 		}
 
+		await cache.deleteByPrefix(`${userId}:${form.data.meterId}:`);
+
 		return message(form, 'Successfully created meter');
 	} catch (error) {
 		const message = error instanceof Error ? error.message : 'An unknown error occurred';
@@ -75,6 +78,8 @@ export async function deleteBills(userId: string, form: SuperValidated<Infer<Del
 		if (deletedBills.length === 0) {
 			return fail(404, { form, message: 'No matching bills found' });
 		}
+
+		await cache.deleteByPrefix(`${userId}:${form.data.meterId}:`);
 
 		return message(form, 'Successfully deleted bill(s)');
 	} catch (error) {

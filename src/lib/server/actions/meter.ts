@@ -6,6 +6,7 @@ import { message, type SuperValidated } from 'sveltekit-superforms';
 import { capitalize } from '$lib/utils';
 import type z from 'zod';
 import type { CreateMeterSchema } from '$lib/zod';
+import { cache } from '../db/cache';
 
 export async function createMeterAction(
 	userId: string,
@@ -42,6 +43,8 @@ export async function createMeterAction(
 			if (newUserMeter.length === 0) {
 				throw new Error('Failed to link meter with user');
 			}
+
+			await cache.deleteByPrefix(`${userId}:`);
 
 			return newMeter[0];
 		});
