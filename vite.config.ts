@@ -1,5 +1,6 @@
 import tailwindcss from '@tailwindcss/vite';
 import adapter from '@sveltejs/adapter-vercel';
+import { VitePWA } from 'vite-plugin-pwa';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 
@@ -20,6 +21,19 @@ export default defineConfig({
 			},
 			alias: {
 				'$routes/*': 'src/routes'
+			}
+		}),
+		VitePWA({
+			registerType: 'autoUpdate',
+			injectRegister: 'auto',
+			manifest: false,
+			workbox: {
+				cleanupOutdatedCaches: true,
+				navigateFallback: '/offline.html',
+				navigateFallbackAllowlist: [/^(?!\/api(?:\/|$))/]
+			},
+			devOptions: {
+				enabled: false
 			}
 		})
 	]

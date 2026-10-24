@@ -63,7 +63,7 @@
 		shadow-primary/30 transition-transform duration-300
 		ease-out after:absolute after:inset-x-1 after:top-1
 		after:h-1/2 after:rounded-full after:bg-white/20 after:blur-[1px]"
-			style={`transform: translateX(${activeIndex * 100}%);`}
+			style={`transform: translateX(${Math.max(activeIndex, 0) * 100}%);`}
 		></div>
 
 		{#each ROUTES as route (route.name)}

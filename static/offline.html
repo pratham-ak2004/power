@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="theme-color" content="#ffffff" id="theme-color" />
+		<meta name="apple-mobile-web-app-title" content="power" />
+		<link rel="icon" href="/favicon-96x96.png" type="image/png" />
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+		<title>Offline | power</title>
+		<script>
+			(() => {
+				let storedMode = null;
+				try {
+					storedMode = localStorage.getItem('mode-watcher-mode');
+				} catch {
+					// Use the system preference when storage is unavailable.
+				}
+				const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+				const mode = storedMode ?? 'dark';
+				const isDark = mode === 'dark' || (mode === 'system' && prefersDark);
+
+				if (isDark) {
+					document.documentElement.classList.add('dark');
+				}
+
+				document
+					.querySelector('#theme-color')
+					?.setAttribute('content', isDark ? 'oklch(0.145 0 0)' : 'oklch(1 0 0)');
+			})();
+		</script>
+		<style>
+			:root {
+				--background: oklch(1 0 0);
+				--foreground: oklch(0.145 0 0);
+				--primary: oklch(0.841 0.238 128.85);
+				--primary-foreground: oklch(0.405 0.101 131.063);
+				--muted-foreground: oklch(0.556 0 0);
+				--ring: oklch(0.708 0 0);
+				font-family: system-ui, sans-serif;
+				color: var(--foreground);
+				background: var(--background);
+				color-scheme: light;
+			}
+
+			:root.dark {
+				--background: oklch(0.145 0 0);
+				--foreground: oklch(0.985 0 0);
+				--primary: oklch(0.768 0.233 130.85);
+				--primary-foreground: oklch(0.405 0.101 131.063);
+				--muted-foreground: oklch(0.708 0 0);
+				--ring: oklch(0.556 0 0);
+				color: var(--foreground);
+				background: var(--background);
+				color-scheme: dark;
+			}
+
+			* {
+				box-sizing: border-box;
+			}
+
+			body {
+				margin: 0;
+				background: var(--background);
+			}
+
+			main {
+				display: grid;
+				min-height: 100svh;
+				place-items: center;
+				padding: 2rem 1.25rem;
+				text-align: center;
+			}
+
+			section {
+				display: grid;
+				width: min(100%, 28rem);
+				justify-items: center;
+				gap: 1rem;
+			}
+
+			img {
+				width: 96px;
+				height: 96px;
+				border-radius: 1rem;
+			}
+
+			p {
+				margin: 0;
+			}
+
+			.brand {
+				font-size: 0.875rem;
+				font-weight: 700;
+				letter-spacing: 0.08em;
+				text-transform: uppercase;
+				color: var(--muted-foreground);
+			}
+
+			h1 {
+				margin: 0;
+				font-size: clamp(2rem, 8vw, 3.5rem);
+				line-height: 1;
+			}
+
+			.message {
+				max-width: 24rem;
+				color: var(--muted-foreground);
+			}
+
+			button {
+				min-height: 2.75rem;
+				padding: 0.625rem 1rem;
+				border: 0;
+				border-radius: 0.45rem;
+				background: var(--primary);
+				color: var(--primary-foreground);
+				font: inherit;
+				font-weight: 600;
+				cursor: pointer;
+			}
+
+			button:focus-visible {
+				outline: 2px solid var(--ring);
+				outline-offset: 3px;
+			}
+		</style>
+	</head>
+	<body>
+		<main>
+			<section>
+				<img src="/web-app-manifest-192x192.png" alt="power" />
+				<p class="brand">power</p>
+				<h1>You are offline</h1>
+				<p class="message">
+					Reconnect to the internet to load your meters, readings, and bills.
+				</p>
+				<button type="button" onclick="location.reload()">Try again</button>
+			</section>
+		</main>
+	</body>
+</html>
